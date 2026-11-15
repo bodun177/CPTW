@@ -1,0 +1,46 @@
+# Архітектура компонентів: Автопідбір
+
+## Дерево
+
+App
+- AppLayout (шапка, навігація, футер)
+  - HomePage
+    - Section «Про застосунок»
+    - Section «Каталог»: CatalogSummary, PartList → PartCard → AvailabilityBadge
+  - SearchPage
+    - Section «Підбір»: AvailabilityBadge, SearchFormPreview → FormField, AppButton
+
+## Контракти
+
+| Компонент | Props | Призначення |
+|---|---|---|
+| AppLayout | title, links, children | Спільна оболонка з одним main |
+| Section | id, title, children | Блок із заголовком |
+| PartList | items | Список карток (порожній масив допустимий) |
+| PartCard | item | Картка однієї запчастини |
+| AvailabilityBadge | available | Підпис наявності |
+| SearchPage | item | Сторінка підбору (item може бути відсутнім) |
+| FormField | id, label, hint, children | Поле з підписом і підказкою |
+| SearchFormPreview | idPrefix, partName | Макет форми без збереження |
+| AppButton | children, type, variant, disabled | Кнопка (primary або secondary) |
+
+## Повторне використання
+
+- AvailabilityBadge: у картці каталогу і на сторінці підбору.
+- Section: двічі на головній сторінці з різним вмістом.
+- AppButton: двічі у формі.
+
+## Керування станом (Л 2.1)
+
+| Значення | Природа | Власник |
+|---|---|---|
+| `parts` | початкові дані | модуль `data/parts.js`, передається в `App` |
+| `detailsOpen` | локальний стан UI | конкретна `PartCard` |
+| `query`, `availableOnly` | стан каталогу | `HomePage` через хук `usePartFilters` |
+| `selectedId` | спільний стан вибору | `PartSelectionProvider` (Context) |
+| `draft` | незбережена чернетка підбору | `SearchPage` |
+| `visibleItems`, `selectedItem`, лічильники | похідні значення | обчислюються, окремого `useState` немає |
+
+Події: `onSelect(id)`, `onQueryChange(text)`, `onAvailableOnlyChange(flag)`, `onFieldChange(field, value)`, `onReset()`, `onClearSelection()`.
+
+Context API обмежений робочою областю (`CatalogContainer`, `SearchContainer`); `SiteHeader`, `MainNav` і футер поза провайдером. Чернетка скидається через `key={selectedId ?? 'empty'}` на `SearchPage`. Ефект у `SearchPage` синхронізує `document.title` і відновлює його при очищенні.
