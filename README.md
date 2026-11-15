@@ -1,31 +1,18 @@
-# Архітектура компонентів: Автопідбір
+@"
+# Автопідбір
 
-## Дерево
+Вебзастосунок для пошуку та підбору автомобільних запасних частин.
 
-App
-- AppLayout (шапка, навігація, футер)
-  - HomePage
-    - Section «Про застосунок»
-    - Section «Каталог»: CatalogSummary, PartList → PartCard → AvailabilityBadge
-  - SearchPage
-    - Section «Підбір»: AvailabilityBadge, SearchFormPreview → FormField, AppButton
+## Запуск
 
-## Контракти
+npm install
+npm start
 
-| Компонент | Props | Призначення |
-|---|---|---|
-| AppLayout | title, links, children | Спільна оболонка з одним main |
-| Section | id, title, children | Блок із заголовком |
-| PartList | items | Список карток (порожній масив допустимий) |
-| PartCard | item | Картка однієї запчастини |
-| AvailabilityBadge | available | Підпис наявності |
-| SearchPage | item | Сторінка підбору (item може бути відсутнім) |
-| FormField | id, label, hint, children | Поле з підписом і підказкою |
-| SearchFormPreview | idPrefix, partName | Макет форми без збереження |
-| AppButton | children, type, variant, disabled | Кнопка (primary або secondary) |
+Застосунок відкривається на http://localhost:3000/
 
-## Повторне використання
+## Збірка
 
-- AvailabilityBadge: у картці каталогу і на сторінці підбору. Зміна підпису робиться в одному файлі.
-- Section: двічі на головній сторінці з різним вмістом.
-- AppButton: двічі у формі.
+npm run build
+
+Архітектура компонентів: docs/component-architecture.md
+"@ | Set-Content -Encoding UTF8 README.md

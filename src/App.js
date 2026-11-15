@@ -1,21 +1,21 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home';
-import About from './pages/About';
+import AppLayout from './components/layout/AppLayout.jsx';
+import HomePage from './pages/HomePage.jsx';
+import SearchPage from './pages/SearchPage.jsx';
+import { parts } from './data/parts.js';
 
-function App() {
-    return (
-        <BrowserRouter>
-            <nav style={{ textAlign: 'center', padding: '10px' }}>
-                <Link to="/">Головна</Link> | <Link to="/about">Про нас</Link>
-            </nav>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-            </Routes>
-        </BrowserRouter>
-    );
+const navigationLinks = [
+  { href: '#about', label: 'Про застосунок' },
+  { href: '#catalog', label: 'Каталог' },
+  { href: '#search', label: 'Підбір запчастин' },
+];
+
+export default function App() {
+  const exampleItem = parts.find((item) => item.id === 'p-001');
+
+  return (
+    <AppLayout title="Автопідбір" links={navigationLinks}>
+      <HomePage />
+      <SearchPage item={exampleItem} />
+    </AppLayout>
+  );
 }
-
-
-export default App;
