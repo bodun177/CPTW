@@ -44,3 +44,12 @@ App
 Події: `onSelect(id)`, `onQueryChange(text)`, `onAvailableOnlyChange(flag)`, `onFieldChange(field, value)`, `onReset()`, `onClearSelection()`.
 
 Context API обмежений робочою областю (`CatalogContainer`, `SearchContainer`); `SiteHeader`, `MainNav` і футер поза провайдером. Чернетка скидається через `key={selectedId ?? 'empty'}` на `SearchPage`. Ефект у `SearchPage` синхронізує `document.title` і відновлює його при очищенні.
+
+## Сторінки та маршрутизація (Л 2.2)
+
+- `AppLayout` задає спільну оболонку через `Outlet`; `PartSelectionProvider` розміщено в ній, тому останній вибір зберігається між клієнтськими переходами. Шапка, меню й підвал поза провайдером.
+- `SearchesLayout` — вкладена оболонка розділу підборів з власним меню.
+- Фільтри каталогу (`q`, `available`) зберігаються в URL; хук `usePartFilters` читає їх через `useSearchParams`, окремого `useState` немає.
+- Предмет сторінки деталей визначає `useParams`, предмет нового підбору — query-параметр `partId`. Контекст зберігає лише останній явний вибір.
+- `SearchPage` — спільний редактор чернетки; ключ `new-<id>` / `edit-<id>` задається в маршрутних сторінках. Чернетка скидається при виході зі сторінки, зміні запису або перезавантаженні.
+- `PageHeading` — єдиний власник `document.title` на відкритій сторінці.

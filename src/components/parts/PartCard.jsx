@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import AvailabilityBadge from './AvailabilityBadge.jsx';
 import AppButton from '../ui/AppButton.jsx';
 
@@ -8,7 +9,9 @@ export default function PartCard({ item, selected, onSelect }) {
 
   return (
     <article className="part-card">
-      <h3>{item.name}</h3>
+      <h3>
+        <Link to={`/parts/${encodeURIComponent(item.id)}`}>{item.name}</Link>
+      </h3>
       <p className="category">{item.category}</p>
       <p>
         Марка: {item.brand}, модель авто: {item.carModel}
