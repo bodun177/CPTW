@@ -11,11 +11,21 @@ npm start
 
 Застосунок відкривається на http://localhost:3000/
 
-## Збірка
+## Тести, перевірка коду та збірка
 
 ```
-npm run build
+npm run test:run     # один запуск усіх тестів (Jest + React Testing Library)
+npm test             # режим спостереження під час розробки
+npm run lint         # ESLint
+npm run build        # виробнича збірка у build/
+npx serve -s build   # локальний перегляд збірки з поверненням index.html
 ```
+
+Тести: `src/domain/*.test.js` (правила й відбір), `src/pages/SearchPage.test.jsx` (форма), `src/App.integration.test.jsx` (маршрути, провайдер, стани, запис, видалення), `src/services/apiSearchService.test.js` (адаптер). У інтеграційних тестах підміняється лише `searchService`. Спільні дані й керована Promise: `src/test/`.
+
+Чисту повторну перевірку в окремій копії виконують так: `npm ci`, `npm run test:run`, `npm run lint`, `npm run build`.
+
+Порти dev (3000) і перегляду збірки відрізняються, тому `localStorage` у них окреме (різні origin): порожній список в іншому порту не означає втрату записів.
 
 ## Маршрутизація
 
@@ -52,3 +62,7 @@ npm run build
 Правила полів підбору: `src/domain/searchValidation.js`.
 
 Документація: `docs/component-architecture.md`, `docs/project-plan.md`
+
+## Матеріали захисту
+
+Сценарій показу й перевірочні дані: `docs/demo-script.md`. Статус готовності та результат вимірювання продуктивності: `docs/project-plan.md`.

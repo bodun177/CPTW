@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import PageHeading from '../components/ui/PageHeading.jsx';
 import EmptyState from '../components/ui/EmptyState.jsx';
@@ -23,14 +23,17 @@ export default function SearchesPage({ items }) {
     };
   }, []);
 
-  async function handleDelete(search) {
-    if (isMutating) return;
-    setError('');
-    const result = await deleteWithConfirmation(search);
-    if (pageAlive.current && !result.ok && !result.cancelled) {
-      setError(result.message);
-    }
-  }
+  const handleDelete = useCallback(
+    async (search) => {
+      if (isMutating) return;
+      setError('');
+      const result = await deleteWithConfirmation(search);
+      if (pageAlive.current && !result.ok && !result.cancelled) {
+        setError(result.message);
+      }
+    },
+    [deleteWithConfirmation, isMutating],
+  );
 
   return (
     <>

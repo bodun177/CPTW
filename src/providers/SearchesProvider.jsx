@@ -45,7 +45,7 @@ export default function SearchesProvider({ children }) {
     };
   }, [reload]);
 
-  async function mutate(operation, apply, message) {
+  const mutate = useCallback(async (operation, apply, message) => {
     if (mutationLock.current || status !== 'success') {
       return { ok: false, message: 'Дочекайтеся завершення поточної операції.' };
     }
@@ -73,7 +73,7 @@ export default function SearchesProvider({ children }) {
       mutationLock.current = false;
       if (mounted.current) setIsMutating(false);
     }
-  }
+  }, [status]);
 
   function createSearch(input) {
     return mutate(
@@ -95,13 +95,17 @@ export default function SearchesProvider({ children }) {
     );
   }
 
-  function deleteSearch(id) {
-    return mutate(
-      () => searchService.delete(id),
-      (previous) => previous.filter((entry) => entry.id !== id),
-      'Підбір видалено.',
-    );
-  }
+  const deleteSearch = useCallback(
+    (id) =>
+      mutate(
+        () => searchService.delete(id),
+        (previous) => previous.filter((entry) => entry.id !== id),
+        'Підбір видалено.',
+      ),
+    [mutate],
+  );
+
+  const dismissNotice = useCallback(() => setNotice(''), []);
 
   return (
     <SearchesContext.Provider
@@ -115,7 +119,7 @@ export default function SearchesProvider({ children }) {
         updateSearch,
         deleteSearch,
         notice,
-        dismissNotice: () => setNotice(''),
+        dismissNotice,
       }}
     >
       {children}

@@ -106,3 +106,9 @@ localStorage | REST API
 Контракт сервісу: `getAll({signal})` → масив; `getById(id,{signal})` → запис або `NOT_FOUND`; `create(input)` → повний запис з id; `update(id,input)` → повний запис з тим самим id; `delete(id)` → `undefined`. Відмова — відхилений Promise із `ServiceError` (`code`, `message`, `status`, `errors`). Провайдер перетворює відмову запису на `{ ok:false, message, errors }`, успіх — на `{ ok:true, record }`.
 
 Правила синхронізації: колекція змінюється лише після підтвердження сервісу, повернутим записом; одночасно виконується одна операція запису (`mutationLock` + `isMutating`); читання має номер версії й `AbortController`, тому застаріла відповідь не затирає знімок; відсутній запис визначається після успішного читання (`SearchesGate`). Хук `useSearchRecord` (окреме `getById`) підготовлено як дослід; сторінки деталей і редагування читають спільний знімок провайдера.
+
+## Тестування й продуктивність (Л 4.1)
+
+- `src/domain/selectSearches.js` — чиста функція пошуку, фільтра й сортування; `useSearchFilters` лише читає параметри URL і викликає її.
+- `SearchRow` (мемоізований рядок таблиці) отримує `search`, `partName`, `disabled` та стабільний `onDelete`. Стабільність забезпечують `useCallback` у `SearchesProvider` (`mutate`, `deleteSearch`, `dismissNotice`), `useDeleteSearch` і `SearchesPage`.
+- Тести перевіряють поведінку через ролі й доступні назви; у інтеграційних тестах підміняється тільки `searchService`.

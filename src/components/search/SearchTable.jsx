@@ -1,5 +1,4 @@
-import { Link } from 'react-router';
-import AppButton from '../ui/AppButton.jsx';
+import SearchRow from './SearchRow.jsx';
 
 export default function SearchTable({ searches, items, onDelete, disabled = false }) {
   return (
@@ -16,39 +15,18 @@ export default function SearchTable({ searches, items, onDelete, disabled = fals
           </tr>
         </thead>
         <tbody>
-          {searches.map((search) => {
-            const item = items.find((entry) => entry.id === search.partId);
-            const path = `/searches/${encodeURIComponent(search.id)}`;
-
-            return (
-              <tr key={search.id}>
-                <td>
-                  <strong>{item?.name ?? 'Запчастина відсутня'}</strong>
-                  <p>{search.comment}</p>
-                </td>
-                <td>
-                  {search.carBrand} {search.carModel}
-                </td>
-                <td>{search.quantity}</td>
-                <td>{search.urgent ? 'Так' : 'Ні'}</td>
-                <td>
-                  <p>
-                    <Link to={path}>Переглянути</Link>
-                  </p>
-                  <p>
-                    <Link to={`${path}/edit`}>Редагувати</Link>
-                  </p>
-                  <AppButton
-                    variant="secondary"
-                    disabled={disabled}
-                    onClick={() => onDelete(search)}
-                  >
-                    Видалити
-                  </AppButton>
-                </td>
-              </tr>
-            );
-          })}
+          {searches.map((search) => (
+            <SearchRow
+              key={search.id}
+              search={search}
+              partName={
+                items.find((entry) => entry.id === search.partId)?.name ??
+                'Запчастина відсутня'
+              }
+              onDelete={onDelete}
+              disabled={disabled}
+            />
+          ))}
         </tbody>
       </table>
     </div>

@@ -7,7 +7,7 @@ export function validateSearch(input, items) {
   const comment =
     typeof input.comment === 'string' ? input.comment.trim() : '';
   const quantityText = String(input.quantity ?? '').trim();
-  const quantity = Number(quantityText);
+  const quantity = /^\d+$/.test(quantityText) ? Number(quantityText) : NaN;
 
   if (!items.some((item) => item.id === input.partId)) {
     errors.partId = 'Виберіть наявну запчастину з каталогу.';

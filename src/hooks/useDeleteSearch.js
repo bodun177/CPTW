@@ -1,9 +1,10 @@
+import { useCallback } from 'react';
 import useSearches from './useSearches.js';
 
 export default function useDeleteSearch(items) {
   const { deleteSearch } = useSearches();
 
-  return async function deleteWithConfirmation(search) {
+  return useCallback(async (search) => {
     const item = items.find((entry) => entry.id === search.partId);
     const name = item?.name ?? search.partId;
     const confirmed = window.confirm(
@@ -13,5 +14,5 @@ export default function useDeleteSearch(items) {
 
     if (!confirmed) return { ok: false, cancelled: true };
     return deleteSearch(search.id);
-  };
+  }, [items, deleteSearch]);
 }
