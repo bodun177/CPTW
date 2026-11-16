@@ -1,50 +1,63 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 import PageHeading from '../components/ui/PageHeading.jsx';
 import EmptyState from '../components/ui/EmptyState.jsx';
+import AppButton from '../components/ui/AppButton.jsx';
+import SearchFilters from '../components/search/SearchFilters.jsx';
+import SearchTable from '../components/search/SearchTable.jsx';
+import useSearches from '../hooks/useSearches.js';
+import useSearchFilters from '../hooks/useSearchFilters.js';
+import useDeleteSearch from '../hooks/useDeleteSearch.js';
 
-export default function SearchesPage({ searches, items }) {
+export default function SearchesPage({ items }) {
+  const { searches } = useSearches();
+  const filters = useSearchFilters(searches, items);
+  const deleteWithConfirmation = useDeleteSearch(items);
+  const [error, setError] = useState('');
+
+  function handleDelete(search) {
+    setError('');
+    const result = deleteWithConfirmation(search);
+    if (!result.ok && !result.cancelled) setError(result.message);
+  }
+
   return (
     <>
       <PageHeading title="Підбори запчастин" />
-      <p>Нижче наведено локальні демонстраційні записи.</p>
+      <p>
+        <Link to="/parts">Створити підбір (вибрати запчастину в каталозі)</Link>
+      </p>
+      <SearchFilters
+        query={filters.query}
+        urgent={filters.urgent}
+        sort={filters.sort}
+        onQueryChange={filters.setQuery}
+        onUrgentChange={filters.setUrgent}
+        onSortChange={filters.setSort}
+        onReset={filters.resetFilters}
+      />
+      <p>
+        Показано: {filters.visibleSearches.length} із {searches.length}
+      </p>
+      {error && <p role="alert">{error}</p>}
       {searches.length === 0 ? (
         <EmptyState title="Підборів ще немає.">
           <p>
-            <Link to="new">Підготувати новий підбір</Link>
+            <Link to="/parts">Виберіть запчастину для першого підбору</Link>
           </p>
         </EmptyState>
+      ) : filters.visibleSearches.length === 0 ? (
+        <EmptyState title="За цими умовами нічого не знайдено.">
+          <AppButton variant="secondary" onClick={filters.resetFilters}>
+            Показати всі підбори
+          </AppButton>
+        </EmptyState>
       ) : (
-        <div className="table-scroll">
-          <table className="searches-table">
-            <caption>Підбори для перевірки навігації</caption>
-            <thead>
-              <tr>
-                <th scope="col">Запчастина</th>
-                <th scope="col">Авто</th>
-                <th scope="col">Дія</th>
-              </tr>
-            </thead>
-            <tbody>
-              {searches.map((search) => {
-                const item = items.find((entry) => entry.id === search.partId);
-
-                return (
-                  <tr key={search.id}>
-                    <td>{item?.name ?? 'Запчастина відсутня в каталозі'}</td>
-                    <td>
-                      {search.carBrand} {search.carModel}
-                    </td>
-                    <td>
-                      <Link to={`${encodeURIComponent(search.id)}/edit`}>
-                        Редагувати {search.id}
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <SearchTable
+          searches={filters.visibleSearches}
+          items={items}
+          onDelete={handleDelete}
+        />
       )}
     </>
   );

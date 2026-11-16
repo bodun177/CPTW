@@ -6,10 +6,10 @@ import CatalogContainer from './pages/CatalogContainer.jsx';
 import PartDetailsPage from './pages/PartDetailsPage.jsx';
 import SearchesPage from './pages/SearchesPage.jsx';
 import SearchCreatePage from './pages/SearchCreatePage.jsx';
+import SearchDetailsPage from './pages/SearchDetailsPage.jsx';
 import SearchEditPage from './pages/SearchEditPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import { parts } from './data/parts.js';
-import { searches } from './data/searches.js';
 
 export default function App() {
   return (
@@ -26,14 +26,15 @@ export default function App() {
         </Route>
 
         <Route path="searches" element={<SearchesLayout />}>
-          <Route
-            index
-            element={<SearchesPage searches={searches} items={parts} />}
-          />
+          <Route index element={<SearchesPage items={parts} />} />
           <Route path="new" element={<SearchCreatePage items={parts} />} />
           <Route
+            path=":searchId"
+            element={<SearchDetailsPage items={parts} />}
+          />
+          <Route
             path=":searchId/edit"
-            element={<SearchEditPage searches={searches} items={parts} />}
+            element={<SearchEditPage items={parts} />}
           />
         </Route>
 

@@ -12,6 +12,8 @@ export default function SearchSummary({ partName, draft }) {
         <dd>{car || 'Ще не вказано'}</dd>
         <dt>Коментар</dt>
         <dd>{comment || 'Ще не вказано'}</dd>
+        <dt>Кількість, шт.</dt>
+        <dd>{draft.quantity === '' ? 'Ще не вказано' : draft.quantity}</dd>
         <dt>Доставка</dt>
         <dd>{draft.urgent ? 'Термінова' : 'Звичайна'}</dd>
       </dl>

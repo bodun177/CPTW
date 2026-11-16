@@ -11,7 +11,7 @@ export default function HomePage() {
         <Link to="/parts">Перейти до запчастин</Link>
       </p>
       <p>
-        <Link to="/searches">Переглянути демонстраційні підбори</Link>
+        <Link to="/searches">Переглянути підбори</Link>
       </p>
     </>
   );

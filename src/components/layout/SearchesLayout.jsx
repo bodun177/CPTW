@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router';
+import SearchNotice from '../search/SearchNotice.jsx';
 
 export default function SearchesLayout() {
   return (
@@ -15,6 +16,8 @@ export default function SearchesLayout() {
           </li>
         </ul>
       </nav>
+      <p>Локальні дані зберігаються до перезавантаження сторінки.</p>
+      <SearchNotice />
       <Outlet />
     </>
   );

@@ -5,6 +5,7 @@ export const searches = [
     carBrand: 'Volkswagen',
     carModel: 'Golf VII',
     comment: 'Потрібні колодки для автомобіля 2015 року випуску.',
+    quantity: 2,
     urgent: true,
   },
   {
@@ -13,6 +14,7 @@ export const searches = [
     carBrand: 'Toyota',
     carModel: 'Corolla E210',
     comment: 'Фільтр для планової заміни оливи.',
+    quantity: 1,
     urgent: false,
   },
 ];

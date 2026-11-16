@@ -7,9 +7,10 @@
 | `/` | `HomePage` | — | — | — |
 | `/parts` | `CatalogContainer`, `PartListPage` | `q`, `available` (query) | `src/data/parts.js` | «За цими фільтрами нічого не знайдено» |
 | `/parts/:partId` | `PartDetailsPage` | `partId` (шлях) | `src/data/parts.js` | сторінка «Запчастину не знайдено» |
-| `/searches` | `SearchesPage` | — | `src/data/searches.js` | порожній стан зі посиланням на створення |
+| `/searches` | `SearchesPage` | `q`, `urgent`, `sort` (query) | поточна колекція (`SearchesProvider`) | порожня колекція або порожній результат пошуку |
 | `/searches/new` | `SearchCreatePage` | `partId` (query) | `src/data/parts.js` | без параметра — пояснення; з невідомим — «Неможливо підготувати підбір» |
-| `/searches/:searchId/edit` | `SearchEditPage` | `searchId` (шлях) | `src/data/searches.js` | сторінка «Підбір не знайдено» |
+| `/searches/:searchId` | `SearchDetailsPage` | `searchId` (шлях) | поточна колекція | сторінка «Підбір не знайдено» |
+| `/searches/:searchId/edit` | `SearchEditPage` | `searchId` (шлях) | поточна колекція | сторінка «Підбір для редагування не знайдено» |
 | `*` | `NotFoundPage` | — | — | 404 із посиланнями |
 
 ## Дерево маршрутного вмісту
@@ -23,6 +24,7 @@ AppLayout (PartSelectionProvider, Outlet)
   SearchesLayout
     Список підборів
     Новий підбір
+    Деталі підбору
     Редагування підбору
   Сторінка 404
 ```
@@ -34,3 +36,20 @@ AppLayout (PartSelectionProvider, Outlet)
 - `/searches/new?partId=p-001`
 - `/searches/s-001/edit`
 - `/unknown`, `/parts/missing`, `/searches/missing/edit`
+
+## Модель підбору (Л 3.1)
+
+| Поле | Правило |
+|---|---|
+| `id` | створюється операцією додавання, у формі не редагується |
+| `partId` | посилання на наявну запчастину каталогу |
+| `carBrand` | обов'язкове, від 2 до 30 символів без крайніх пробілів |
+| `carModel` | обов'язкове, до 40 символів |
+| `comment` | обов'язковий, від 10 до 500 символів без крайніх пробілів |
+| `quantity` | обов'язкове ціле число від 1 до 10 |
+| `urgent` | логічне значення |
+| Зв'язок полів | для `quantity` > 4 коментар має містити не менше 20 символів |
+
+Підбір є запитом на підбір запчастини, а не підтвердженим замовленням. Збереження підбору не змінює `available` у каталозі.
+
+Параметри списку `/searches`: `q` (пошук у назві запчастини, марці, моделі та коментарі), `urgent` (`all`, `yes`, `no`), `sort` (`part`, `quantity-asc`, `quantity-desc`).

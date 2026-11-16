@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router';
 import SiteHeader from './SiteHeader.jsx';
 import PartSelectionProvider from '../../providers/PartSelectionProvider.jsx';
+import SearchesProvider from '../../providers/SearchesProvider.jsx';
 
 const navigationLinks = [
   { to: '/', label: 'Головна', end: true },
@@ -17,7 +18,9 @@ export default function AppLayout({ items }) {
       <SiteHeader title="Автопідбір" links={navigationLinks} />
       <main id="main-content" tabIndex={-1}>
         <PartSelectionProvider items={items}>
-          <Outlet />
+          <SearchesProvider items={items}>
+            <Outlet />
+          </SearchesProvider>
         </PartSelectionProvider>
       </main>
       <footer>Навчальний проєкт. Каталог і підбір автозапчастин.</footer>
