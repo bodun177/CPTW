@@ -1,11 +1,11 @@
 import { Link } from 'react-router';
 import AppButton from '../ui/AppButton.jsx';
 
-export default function SearchTable({ searches, items, onDelete }) {
+export default function SearchTable({ searches, items, onDelete, disabled = false }) {
   return (
     <div className="table-scroll">
       <table className="searches-table">
-        <caption>Підбори поточної локальної колекції</caption>
+        <caption>Підбори з поточного знімка даних</caption>
         <thead>
           <tr>
             <th scope="col">Запчастина і коментар</th>
@@ -40,6 +40,7 @@ export default function SearchTable({ searches, items, onDelete }) {
                   </p>
                   <AppButton
                     variant="secondary"
+                    disabled={disabled}
                     onClick={() => onDelete(search)}
                   >
                     Видалити

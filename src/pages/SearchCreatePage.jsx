@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import PageHeading from '../components/ui/PageHeading.jsx';
 import EmptyState from '../components/ui/EmptyState.jsx';
@@ -12,6 +13,14 @@ export default function SearchCreatePage({ items }) {
   const { selectedId, clearSelection } = usePartSelection();
   const { createSearch } = useSearches();
   const partId = searchParams.get('partId');
+  const pageAlive = useRef(false);
+
+  useEffect(() => {
+    pageAlive.current = true;
+    return () => {
+      pageAlive.current = false;
+    };
+  }, []);
 
   if (partId === null) {
     const lastSelectionSearch = selectedId
@@ -41,9 +50,9 @@ export default function SearchCreatePage({ items }) {
     return <NotFoundPage title="Запчастину нового підбору не знайдено" />;
   }
 
-  function handleSave(input) {
-    const result = createSearch(input);
-    if (result.ok) {
+  async function handleSave(input) {
+    const result = await createSearch(input);
+    if (result.ok && pageAlive.current) {
       navigate(`/searches/${encodeURIComponent(result.record.id)}`, {
         replace: true,
       });

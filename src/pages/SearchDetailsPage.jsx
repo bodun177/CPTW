@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import PageHeading from '../components/ui/PageHeading.jsx';
 import AppButton from '../components/ui/AppButton.jsx';
@@ -9,18 +9,36 @@ import NotFoundPage from './NotFoundPage.jsx';
 export default function SearchDetailsPage({ items }) {
   const { searchId } = useParams();
   const navigate = useNavigate();
-  const { searches } = useSearches();
+  const { searches, isMutating } = useSearches();
   const deleteWithConfirmation = useDeleteSearch(items);
   const [error, setError] = useState('');
   const search = searches.find((entry) => entry.id === searchId);
+  const pageAlive = useRef(false);
+  const activeId = useRef(searchId);
+
+  useEffect(() => {
+    pageAlive.current = true;
+    return () => {
+      pageAlive.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    activeId.current = searchId;
+    return () => {
+      activeId.current = null;
+    };
+  }, [searchId]);
 
   if (!search) return <NotFoundPage title="Підбір не знайдено" />;
 
   const item = items.find((entry) => entry.id === search.partId);
 
-  function handleDelete() {
+  async function handleDelete() {
+    if (isMutating) return;
     setError('');
-    const result = deleteWithConfirmation(search);
+    const result = await deleteWithConfirmation(search);
+    if (!pageAlive.current || activeId.current !== search.id) return;
     if (result.ok) navigate('/searches', { replace: true });
     else if (!result.cancelled) setError(result.message);
   }
@@ -49,9 +67,14 @@ export default function SearchDetailsPage({ items }) {
           Редагувати підбір
         </Link>
       </p>
-      <AppButton variant="secondary" onClick={handleDelete}>
+      <AppButton
+        variant="secondary"
+        disabled={isMutating}
+        onClick={handleDelete}
+      >
         Видалити підбір
       </AppButton>
+      <p role="status">{isMutating ? 'Опрацювання зміни…' : ''}</p>
       <p>
         <Link to="/searches">До всіх підборів</Link>
       </p>

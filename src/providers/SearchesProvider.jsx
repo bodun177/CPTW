@@ -1,67 +1,121 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SearchesContext } from '../context/SearchesContext.js';
-import { searches as initialSearches } from '../data/searches.js';
-import { validateSearch } from '../domain/searchValidation.js';
+import { searchService } from '../services/searchService.js';
+import { errorMessage } from '../services/ServiceError.js';
 
-export default function SearchesProvider({ items, children }) {
-  const [searches, setSearches] = useState(() =>
-    initialSearches.map((search) => ({ ...search })),
-  );
+export default function SearchesProvider({ children }) {
+  const [searches, setSearches] = useState([]);
+  const [status, setStatus] = useState('loading');
+  const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [isMutating, setIsMutating] = useState(false);
+  const activeRead = useRef(null);
+  const readVersion = useRef(0);
+  const mutationLock = useRef(false);
+  const mounted = useRef(false);
+
+  const reload = useCallback(async () => {
+    if (mutationLock.current) return;
+    activeRead.current?.abort();
+    const controller = new AbortController();
+    activeRead.current = controller;
+    const version = ++readVersion.current;
+    setStatus('loading');
+    setError('');
+
+    try {
+      const records = await searchService.getAll({ signal: controller.signal });
+      if (controller.signal.aborted || version !== readVersion.current) return;
+      setSearches(records);
+      setStatus('success');
+    } catch (cause) {
+      if (controller.signal.aborted || version !== readVersion.current) return;
+      setError(errorMessage(cause));
+      setStatus('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    mounted.current = true;
+    void reload();
+    return () => {
+      mounted.current = false;
+      activeRead.current?.abort();
+      readVersion.current += 1;
+    };
+  }, [reload]);
+
+  async function mutate(operation, apply, message) {
+    if (mutationLock.current || status !== 'success') {
+      return { ok: false, message: 'Дочекайтеся завершення поточної операції.' };
+    }
+    mutationLock.current = true;
+    setIsMutating(true);
+    setNotice('');
+    activeRead.current?.abort();
+    readVersion.current += 1;
+
+    try {
+      const record = await operation();
+      if (mounted.current) {
+        setSearches((previous) => apply(previous, record));
+        setNotice(message);
+      }
+      return { ok: true, record };
+    } catch (cause) {
+      return {
+        ok: false,
+        message: errorMessage(cause),
+        errors: cause.errors,
+        code: cause.code,
+      };
+    } finally {
+      mutationLock.current = false;
+      if (mounted.current) setIsMutating(false);
+    }
+  }
 
   function createSearch(input) {
-    const validation = validateSearch(input, items);
-    if (!validation.ok) return validation;
-
-    const record = {
-      id: `s-${crypto.randomUUID()}`,
-      ...validation.value,
-    };
-    setSearches((previous) => [...previous, record]);
-    setNotice('Підбір створено в поточній локальній колекції.');
-    return { ok: true, record };
+    return mutate(
+      () => searchService.create(input),
+      (previous, record) => [
+        ...previous.filter((entry) => entry.id !== record.id),
+        record,
+      ],
+      'Підбір створено.',
+    );
   }
 
   function updateSearch(id, input) {
-    const current = searches.find((search) => search.id === id);
-    if (!current) {
-      return { ok: false, message: 'Підбір для оновлення не знайдено.' };
-    }
-
-    const validation = validateSearch(input, items);
-    if (!validation.ok) return validation;
-
-    const record = { ...validation.value, id: current.id };
-    setSearches((previous) =>
-      previous.map((search) => (search.id === id ? record : search)),
+    return mutate(
+      () => searchService.update(id, input),
+      (previous, record) =>
+        previous.map((entry) => (entry.id === id ? record : entry)),
+      'Зміни підбору збережено.',
     );
-    setNotice('Зміни підбору збережено в поточній локальній колекції.');
-    return { ok: true, record };
   }
 
   function deleteSearch(id) {
-    if (!searches.some((search) => search.id === id)) {
-      return { ok: false, message: 'Підбір для видалення не знайдено.' };
-    }
-
-    setSearches((previous) => previous.filter((search) => search.id !== id));
-    setNotice('Підбір видалено з поточної локальної колекції.');
-    return { ok: true };
-  }
-
-  function dismissNotice() {
-    setNotice('');
+    return mutate(
+      () => searchService.delete(id),
+      (previous) => previous.filter((entry) => entry.id !== id),
+      'Підбір видалено.',
+    );
   }
 
   return (
     <SearchesContext.Provider
       value={{
         searches,
+        status,
+        error,
+        reload,
+        isMutating,
         createSearch,
         updateSearch,
         deleteSearch,
         notice,
-        dismissNotice,
+        dismissNotice: () => setNotice(''),
       }}
     >
       {children}

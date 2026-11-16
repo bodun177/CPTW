@@ -18,7 +18,7 @@ export default function AppLayout({ items }) {
       <SiteHeader title="Автопідбір" links={navigationLinks} />
       <main id="main-content" tabIndex={-1}>
         <PartSelectionProvider items={items}>
-          <SearchesProvider items={items}>
+          <SearchesProvider>
             <Outlet />
           </SearchesProvider>
         </PartSelectionProvider>

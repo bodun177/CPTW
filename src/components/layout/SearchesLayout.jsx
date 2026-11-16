@@ -1,5 +1,8 @@
 import { NavLink, Outlet } from 'react-router';
 import SearchNotice from '../search/SearchNotice.jsx';
+import SearchesGate from '../search/SearchesGate.jsx';
+import DevFailureControls from '../search/DevFailureControls.jsx';
+import { dataSource } from '../../services/searchService.js';
 
 export default function SearchesLayout() {
   return (
@@ -16,9 +19,16 @@ export default function SearchesLayout() {
           </li>
         </ul>
       </nav>
-      <p>Локальні дані зберігаються до перезавантаження сторінки.</p>
+      <p>
+        {dataSource === 'mock'
+          ? 'Підбори зберігаються в локальному сховищі цього браузера (режим mock).'
+          : 'Підбори зберігаються у зовнішньому сервісі (режим API).'}
+      </p>
+      <DevFailureControls />
       <SearchNotice />
-      <Outlet />
+      <SearchesGate>
+        <Outlet />
+      </SearchesGate>
     </>
   );
 }
